@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 
-// Middleware
 app.use(express.json());
 
 // Root route
@@ -9,7 +8,7 @@ app.get('/', (req, res) => {
     res.send('CI/CD App Running 🚀');
 });
 
-// Health check (important for DevOps)
+// Health check (important for monitoring)
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'UP' });
 });
@@ -24,7 +23,6 @@ app.get('/api/users', (req, res) => {
 
 const PORT = 3000;
 
-// Start server
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
