@@ -1,7 +1,7 @@
 {
   "name": "nodejs-ci-cd-app",
   "version": "1.0.0",
-  "description": "Node.js app for CI/CD pipeline without Docker",
+  "description": "Node.js CI/CD app without Docker",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
