@@ -1,22 +1,15 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS'
-    }
-
     environment {
-        APP_NAME = "node-app"
-        SERVER_IP = "<server-ip>"
-        APP_DIR = "/home/ubuntu/node-app"
-        SONAR_PROJECT_KEY = "nodejs-ci-cd-app"
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
 
-        stage('Git Clone') {
+        stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/node-app.git'
+                git 'https://github.com/YOUR_USERNAME/nodejs-ci-cd-app.git'
             }
         }
 
@@ -33,17 +26,13 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                SONAR_SCANNER_HOME = tool 'SonarScanner'
-            }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                    $SONAR_SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                    sonar-scanner \
+                    -Dsonar.projectKey=nodejs-app \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=$SONAR_HOST_URL \
-                    -Dsonar.login=$SONAR_AUTH_TOKEN
+                    -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
@@ -51,25 +40,12 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh """
-                scp -r * ubuntu@${SERVER_IP}:${APP_DIR}
-
-                ssh ubuntu@${SERVER_IP} '
-                    cd ${APP_DIR} &&
-                    npm install &&
-                    sudo systemctl restart ${APP_NAME} || sudo systemctl start ${APP_NAME}
-                '
-                """
+                sh '''
+                sudo systemctl stop nodeapp || true
+                cp -r * /home/ubuntu/nodeapp/
+                sudo systemctl start nodeapp
+                '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Deployment successful!"
-        }
-        failure {
-            echo "❌ Pipeline failed!"
         }
     }
 }
