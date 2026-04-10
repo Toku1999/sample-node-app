@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'nodejs'
+    }
+
     environment {
         SONAR_TOKEN = credentials('sonar-token')
     }
@@ -9,7 +13,7 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/nodejs-ci-cd-app.git'
+                git 'https://github.com/Toku1999/sample-node-app.git'
             }
         }
 
@@ -19,21 +23,21 @@ pipeline {
             }
         }
 
-        stage('Unit Test') {
+        stage('Test') {
             steps {
                 sh 'npm test'
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh """
+                    sh '''
                     sonar-scanner \
                     -Dsonar.projectKey=nodejs-app \
                     -Dsonar.sources=. \
                     -Dsonar.login=$SONAR_TOKEN
-                    """
+                    '''
                 }
             }
         }
@@ -41,9 +45,12 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                sudo systemctl stop nodeapp || true
-                cp -r * /home/ubuntu/nodeapp/
-                sudo systemctl start nodeapp
+                ssh -o StrictHostKeyChecking=no ubuntu@<EC2-IP> << EOF
+                cd /home/ubuntu/nodeapp || mkdir -p /home/ubuntu/nodeapp && cd /home/ubuntu/nodeapp
+                git pull || git clone https://github.com/Toku1999/sample-node-app.git .
+                npm install
+                sudo systemctl restart nodeapp
+                EOF
                 '''
             }
         }
