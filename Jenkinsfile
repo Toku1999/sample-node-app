@@ -46,23 +46,21 @@ pipeline {
             }
         }
 
-               stage('Deploy') {
+        stage('Deploy') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@13.217.160.184 "
-                if [ ! -d /home/ubuntu/nodeapp ]; then
-                    mkdir -p /home/ubuntu/nodeapp
-                    cd /home/ubuntu/nodeapp
-                    git clone https://github.com/Toku1999/sample-node-app.git .
+                if [ ! -d "/home/ubuntu/sample-node-app/.git" ]; then
+                    rm -rf /home/ubuntu/sample-node-app
+                    git clone -b main https://github.com/Toku1999/sample-node-app.git /home/ubuntu/sample-node-app
                 else
-                    cd /home/ubuntu/nodeapp
-                    git pull
+                    cd /home/ubuntu/sample-node-app
+                    git pull origin main
                 fi
+
+                cd /home/ubuntu/sample-node-app
                 npm install
-                sudo systemctl restart nodeapp
-                "
+                sudo systemctl restart sample-node-app
                 '''
-            }
             }
         }
     }
