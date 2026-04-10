@@ -6,14 +6,12 @@ app.use(express.json());
 app.use('/api', userRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Node.js CI/CD App Running 🚀');
+  res.send('App Running ✅');
 });
 
 module.exports = app;
 
-// Start server only if not testing
 if (require.main === module) {
-  app.listen(3000, () => {
-    console.log('Server running on port 3000');
-  });
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
