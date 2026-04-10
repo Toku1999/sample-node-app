@@ -46,23 +46,17 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+                stage('Deploy') {
             steps {
                 sh '''
-                if [ ! -d "/home/ubuntu/sample-node-app/.git" ]; then
-                    rm -rf /home/ubuntu/sample-node-app
-                    git clone -b main https://github.com/Toku1999/sample-node-app.git /home/ubuntu/sample-node-app
-                else
-                    cd /home/ubuntu/sample-node-app
-                    git pull origin main
-                fi
-
-                cd /home/ubuntu/sample-node-app
+                ssh -o StrictHostKeyChecking=no ubuntu@<EC2-IP> << EOF
+                cd /home/ubuntu/nodeapp || mkdir -p /home/ubuntu/nodeapp && cd /home/ubuntu/nodeapp
+                git pull || git clone https://github.com/Toku1999/sample-node-app.git .
                 npm install
-                sudo systemctl restart sample-node-app
+                sudo systemctl restart nodeapp
+                EOF
                 '''
             }
         }
-
     }
 }
