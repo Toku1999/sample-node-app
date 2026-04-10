@@ -46,16 +46,23 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+               stage('Deploy') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@<EC2-IP> << EOF
-                cd /home/ubuntu/nodeapp || mkdir -p /home/ubuntu/nodeapp && cd /home/ubuntu/nodeapp
-                git pull || git clone https://github.com/Toku1999/sample-node-app.git .
+                ssh -o StrictHostKeyChecking=no ubuntu@13.217.160.184 "
+                if [ ! -d /home/ubuntu/nodeapp ]; then
+                    mkdir -p /home/ubuntu/nodeapp
+                    cd /home/ubuntu/nodeapp
+                    git clone https://github.com/Toku1999/sample-node-app.git .
+                else
+                    cd /home/ubuntu/nodeapp
+                    git pull
+                fi
                 npm install
                 sudo systemctl restart nodeapp
-                EOF
+                "
                 '''
+            }
             }
         }
     }
