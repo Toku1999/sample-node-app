@@ -1,7 +1,7 @@
 const getUsers = (req, res) => {
   res.json([
-    { id: 1, name: "John" },
-    { id: 2, name: "Jane" }
+    { id: 1, name: "Tokesh" },
+    { id: 2, name: "DevOps" }
   ]);
 };
 
