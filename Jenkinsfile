@@ -3,10 +3,11 @@ pipeline {
 
     tools {
         nodejs 'nodejs'
+        sonarQubeScanner 'sonar-scanner'
     }
 
     environment {
-        SONAR_TOKEN = credentials('SonarQube')
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -32,20 +33,20 @@ pipeline {
         stage('SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh """
+                    sh '''
                     sonar-scanner \
                     -Dsonar.projectKey=sample-node-app \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=$SONAR_HOST_URL \
                     -Dsonar.login=$SONAR_TOKEN
-                    """
+                    '''
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh """
+                sh '''
                 ssh -o StrictHostKeyChecking=no ubuntu@13.217.160.184 << EOF
 
                 if [ ! -d "/home/ubuntu/sample-node-app/.git" ]; then
@@ -61,7 +62,7 @@ pipeline {
                 sudo systemctl restart sample-node-app
 
                 EOF
-                """
+                '''
             }
         }
     }
